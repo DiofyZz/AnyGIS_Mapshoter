@@ -1,6 +1,6 @@
 # Исходники для установки Puppeteer. Взято отсюда:
 # https://github.com/buildkite/docker-puppeteer/blob/master/Dockerfile
-FROM node:16-bullseye-slim
+FROM node:12-bullseye-slim
 
 RUN  apt-get update \
      # Install latest chrome dev package, which installs the necessary libs to
