@@ -1,6 +1,6 @@
 # Исходники для установки Puppeteer. Взято отсюда:
 # https://github.com/buildkite/docker-puppeteer/blob/master/Dockerfile
-FROM node:16-slim
+FROM node:16-bullseye-slim
 
 RUN apt-get update && apt-get install -y \
     wget \
