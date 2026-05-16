@@ -1,11 +1,15 @@
-# Используем стабильный образ Node.js 16 на базе Debian 11 (Bullseye)
-FROM node:16-bullseye-slim
+# Возвращаемся к Node 12, под который написан код Mapshoter
+FROM node:12-slim
 
-# Обновляем списки пакетов и устанавливаем:
-# 1. Зависимости для компиляции C++ модулей (python3, make, g++) - для библиотеки sharp
-# 2. Графические зависимости для Chromium/Puppeteer
+# ХАК: Направляем систему в исторический архив Debian, так как Buster устарел.
+# Это решит ошибку "404 Not Found" при обновлении.
+RUN echo "deb http://archive.debian.org/debian/ buster main" > /etc/apt/sources.list && \
+    echo "deb-src http://archive.debian.org/debian/ buster main" >> /etc/apt/sources.list && \
+    echo "Acquire::Check-Valid-Until false;" > /etc/apt/apt.conf.d/99no-check-valid-until
+
+# Устанавливаем старый python, инструменты сборки C++ и графические библиотеки
 RUN apt-get update && apt-get install -y \
-    python3 \
+    python \
     make \
     g++ \
     wget \
@@ -25,20 +29,19 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Создаем рабочую директорию внутри контейнера
 WORKDIR /app
 
-# Сначала копируем только файлы с зависимостями (для кэширования слоя Docker)
+# Копируем файлы зависимостей
 COPY package*.json ./
 
-# Устанавливаем зависимости Node.js
+# Устанавливаем зависимости
 RUN npm install
 
-# Копируем все остальные исходники проекта
+# Копируем остальной код
 COPY . .
 
-# Сообщаем Docker, что контейнер будет слушать 5000 порт
+# Открываем порт
 EXPOSE 5000
 
-# Команда запуска сервиса
+# Запуск
 CMD ["node", "--experimental-worker", "App/Main.js"]
