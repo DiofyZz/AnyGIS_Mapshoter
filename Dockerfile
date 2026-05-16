@@ -1,24 +1,28 @@
 # Исходники для установки Puppeteer. Взято отсюда:
 # https://github.com/buildkite/docker-puppeteer/blob/master/Dockerfile
-FROM node:12-bullseye-slim
+FROM node:16-slim
 
-RUN  apt-get update \
-     # Install latest chrome dev package, which installs the necessary libs to
-     # make the bundled version of Chromium that Puppeteer installs work.
-     && apt-get install -y wget gnupg ca-certificates --no-install-recommends \
-     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google.gpg \
-     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
-     && apt-get update \
-     && apt-get install -y google-chrome-stable --no-install-recommends \
-     && rm -rf /var/lib/apt/lists/* \
-     && wget --quiet https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh -O /usr/sbin/wait-for-it.sh \
-     && chmod +x /usr/sbin/wait-for-it.sh
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    libx11-xcb1 \
+    libxcb-dri3-0 \
+    libxtst6 \
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
+    libxss1 \
+    libasound2 \
+    libdrm2 \
+    libgbm1 \
+    libpangocairo-1.0-0 \
+    libxshmfence1 \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
 
 # Папка приложения
-ARG APP_DIR=app
-RUN mkdir -p ${APP_DIR}
-WORKDIR ${APP_DIR}
+WORKDIR /app
 
 # Установка зависимостей
 COPY package*.json ./
